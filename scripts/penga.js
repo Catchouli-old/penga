@@ -1,16 +1,41 @@
+var started = false;
+var mousex = 0, mousey = 0;
+
 $(document).ready(initialise);
 
 function initialise()
 {
-	const canvas_name = "penga";
+	// Get canvas and context
+	window.canvas = $('#penga')[0];
+	window.context = canvas.getContext("2d");
 
-	var canvas = document.getElementById(canvas_name);
-	
-	if (canvas != null && canvas.getContext)
+	context.lineWidth = 3;
+
+	$('#penga').mousemove(mousemove);
+	$('#penga').mousedown(mousedown);
+	$('#penga').mouseup(mouseup);
+}
+
+function mousemove(event)
+{
+	mousex = event.pageX - $('#penga').offset().left;
+	mousey = event.pageY - $('#penga').offset().top;
+
+	if (started)
 	{
-		var context = canvas.getContext("2d");
+		context.lineTo(mousex, mousey);
+		context.stroke();
+	}
+}
 
-		context.fillStyle = "rgb(200, 0, 0)";
-		context.fillRect(10, 10, 50, 50);
-	}	
+function mousedown(event)
+{
+	started = true;
+	context.beginPath();
+	context.moveTo(mousex, mousey);
+}
+
+function mouseup(event)
+{
+	started = false;
 }
