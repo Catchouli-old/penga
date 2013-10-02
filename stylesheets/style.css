@@ -1,3 +1,11 @@
+.colour
+{
+	width: 32px;
+	height: 32px;
+	display: inline-block;
+	border: solid 1px;
+}
+
 #penga
 {
 	border: solid 1px #000000;
@@ -5,22 +13,22 @@
 
 #undo
 {
-	width: 320px;
-	display: block;
+	width: 209px;
+	display: inline-block;
 	border: solid 1px #000000;
 }
 
 #redo
 {
-	width: 320px;
-	display: block;
+	width: 210px;
+	display: inline-block;
 	border: solid 1px #000000;
 }
 
 #clear
 {
-	width: 320px;
-	display: block;
+	width: 209px;
+	display: inline-block;
 	border: solid 1px #000000;
 }
 

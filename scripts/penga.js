@@ -1,15 +1,44 @@
+var currentColour = 0;
+var unselectedBorderColour = "#AAAAAA";
+var selectedBorderColour = "#000000";
 var started = false;
 var mousex = 0, mousey = 0;
 
-var paths = {
+// Current doodle
+var paths =
+{
 	pathCount: 0,
 	pointCount: 0,
-	points: [[]],
-	redo: [[]]
+	points: [],
+	redo: []
 };
 
+// Available colours
+var colours =
+[
+	"#000000",	// Black
+	"#000000",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	
+	"#FFFFFF",	// White
+];
+
+// Call initialise when the page is loaded
 $(document).ready(initialise);
 
+// Initialise canvas etc
 function initialise()
 {
 	// Get canvas and context
@@ -30,6 +59,27 @@ function initialise()
 	$('#redo').click(redo_click);
 	$('#clear').click(clear_click);
 
+	// Set up colours
+	var colourButtons = $(".colour");
+	for (var i = 0; i < colours.length && i < colourButtons.length; ++i)
+	{
+		var red = parseInt(Math.random() * 255);
+		var green = parseInt(Math.random() * 255);
+		var blue = parseInt(Math.random() * 255);
+		var rgb = blue | (green << 8) | (red << 16);
+
+		colours[i] = "#" + rgb.toString(16);
+
+		colourButtons[i].style.background = colours[i];
+		$(colourButtons[i]).click({id: i}, colour_click);
+		colourButtons[i].style.borderColor = unselectedBorderColour;
+	}
+
+	// Get border colour for unselected border
+
+	// Select first colour
+	colour_click({data: {id: 0}});
+
 	// Get last doodle and try and load it
 	var last_doodle = $.localStorage.get("lastdoodle");
 
@@ -44,7 +94,7 @@ function mousemove(event)
 
 	if (started)
 	{
-		paths.points[paths.pathCount].push({ x: mousex, y: mousey });
+		paths.points[paths.pathCount-1].array.push({ x: mousex, y: mousey });
 		context.lineTo(mousex, mousey);
 		context.stroke();
 		paths.pointCount++;
@@ -62,8 +112,8 @@ function mousedown(event)
 
 	// Add new path to array
 	paths.pathCount++;
-	paths.points.push([]);
-	paths.points[paths.pathCount].push({x: mousex, y: mousey});
+	paths.points.push({ colour: colours[currentColour], array: [] });
+	paths.points[paths.pathCount-1].array.push({x: mousex, y: mousey});
 
 	// Clear redo stack
 	paths.redo = [[]];
@@ -80,7 +130,7 @@ function undo()
 {
 	if (paths.pathCount > 0)
 	{
-		paths.redo.push(paths.points[paths.pathCount]);
+		paths.redo.push(paths.points[paths.pathCount-1]);
 		paths.points.pop();
 		paths.pathCount--;
 		redraw();
@@ -100,8 +150,8 @@ function redo()
 
 function clear()
 {
-	paths.points = [[]];
-	paths.redo = [[]];
+	paths.points = [];
+	paths.redo = [];
 	paths.pathCount = 0;
 	paths.pointCount = 0;
 	redraw();
@@ -122,6 +172,17 @@ function clear_click(event)
 	clear();
 }
 
+function colour_click(event)
+{
+	if (event.data.id >= 0 && event.data.id < colours.length)
+	{
+		$('.colour')[currentColour].style.borderColor = unselectedBorderColour;
+		currentColour = event.data.id;
+		context.strokeStyle = colours[currentColour];
+		$('.colour')[event.data.id].style.borderColor = selectedBorderColour;
+	}
+}
+
 function redraw()
 {
 	// Create blank string for string output
@@ -133,17 +194,19 @@ function redraw()
 	// Loop through points array and redraw
 	for (var i = 0; i < paths.points.length; ++i)
 	{
-		if (paths.points[i].length > 0)
+		if (paths.points[i].array.length > 0)
 		{
-			string += "#000000";
+			var colour = paths.points[i].colour;
+			string += colour;
 
+			context.strokeStyle = colour;
 			context.beginPath();
-			context.moveTo(paths.points[i][0].x, paths.points[i][0].y);
+			context.moveTo(paths.points[i].array[0].x, paths.points[i].array[0].y);
 
-			for (var j = 0; j < paths.points[i].length; ++j)
+			for (var j = 0; j < paths.points[i].array.length; ++j)
 			{
-				string += " " + paths.points[i][j].x + "," + paths.points[i][j].y;
-				context.lineTo(paths.points[i][j].x, paths.points[i][j].y);
+				string += " " + paths.points[i].array[j].x + "," + paths.points[i].array[j].y;
+				context.lineTo(paths.points[i].array[j].x, paths.points[i].array[j].y);
 			}
 
 			context.stroke();
@@ -178,7 +241,7 @@ function load_doodle(doodle)
 				var colour = words.shift();
 
 				paths.pathCount++;
-				paths.points.push([]);
+				paths.points.push({ colour: colour, array: []});
 
 				for (var j = 0; j < words.length; ++j)
 				{
@@ -189,7 +252,7 @@ function load_doodle(doodle)
 						var x = parseFloat(coords[0]);
 						var y = parseFloat(coords[1]);
 
-						paths.points[paths.pathCount].push({x: x, y: y});
+						paths.points[paths.pathCount-1].array.push({x: x, y: y});
 					}
 				}
 			}
