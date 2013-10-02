@@ -107,6 +107,7 @@ function mousedown(event)
 	started = true;
 
 	// Begin path on canvas
+	context.strokeStyle = colours[currentColour];
 	context.beginPath();
 	context.moveTo(mousex, mousey);
 
