@@ -31,7 +31,7 @@ function initialise()
 	$('#clear').click(clear_click);
 
 	// Get last doodle and try and load it
-	var last_doodle = $.cookie("lastdoodle");
+	var last_doodle = $.localStorage.get("lastdoodle");
 
 	if (last_doodle != undefined)
 		load_doodle(last_doodle);
@@ -153,7 +153,7 @@ function redraw()
 	}
 
 	// base64 encode and output string
-	$.cookie("lastdoodle", $.base64.encode(string), { expires: 30 });
+	$.localStorage.set("lastdoodle", $.base64.encode(string));
 }
 
 function load_doodle(doodle)
