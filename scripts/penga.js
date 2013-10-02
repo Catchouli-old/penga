@@ -4,7 +4,8 @@ var mousex = 0, mousey = 0;
 var paths = {
 	pathCount: 0,
 	pointCount: 0,
-	points: [[]]
+	points: [[]],
+	redo: [[]]
 };
 
 $(document).ready(initialise);
@@ -23,6 +24,7 @@ function initialise()
 	canvaselement.mouseup(mouseup);
 
 	$('#undo').click(undo_click);
+	$('#redo').click(redo_click);
 }
 
 function mousemove(event)
@@ -41,16 +43,25 @@ function mousemove(event)
 
 function mousedown(event)
 {
+	// Start stroke
 	started = true;
+
+	// Begin path on canvas
 	context.beginPath();
 	context.moveTo(mousex, mousey);
+
+	// Add new path to array
 	paths.pathCount++;
 	paths.points.push([]);
 	paths.points[paths.pathCount].push({x: mousex, y: mousey});
+
+	// Clear redo stack
+	paths.redo = [[]];
 }
 
 function mouseup(event)
 {
+	// End stroke
 	started = false;
 }
 
@@ -58,8 +69,20 @@ function undo_click(event)
 {
 	if (paths.pathCount > 0)
 	{
+		paths.redo.push(paths.points[paths.pathCount]);
 		paths.points.pop();
 		paths.pathCount--;
+		redraw();
+	}
+}
+
+function redo_click(event)
+{
+	if (paths.redo.length > 0)
+	{
+		paths.points.push(paths.redo[paths.redo.length-1]);
+		paths.redo.pop();
+		paths.pathCount++;
 		redraw();
 	}
 }
