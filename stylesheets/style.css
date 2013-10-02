@@ -6,11 +6,20 @@
 #undo
 {
 	width: 320px;
+	display: block;
 	border: solid 1px #000000;
 }
 
 #redo
 {
 	width: 320px;
+	display: block;
+	border: solid 1px #000000;
+}
+
+#clear
+{
+	width: 320px;
+	display: block;
 	border: solid 1px #000000;
 }

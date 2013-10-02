@@ -25,6 +25,7 @@ function initialise()
 
 	$('#undo').click(undo_click);
 	$('#redo').click(redo_click);
+	$('#clear').click(clear_click);
 }
 
 function mousemove(event)
@@ -85,6 +86,15 @@ function redo_click(event)
 		paths.pathCount++;
 		redraw();
 	}
+}
+
+function clear_click(event)
+{
+	paths.points = [[]];
+	paths.redo = [[]];
+	paths.pathCount = 0;
+	paths.pointCount = 0;
+	redraw();
 }
 
 function redraw()
